@@ -27,7 +27,7 @@ await clipboard.writeText('some text');
 const text = await clipboard.readText();
 
 text === 'some text';
-...
+```
 
 Issues
 -
