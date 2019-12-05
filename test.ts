@@ -13,3 +13,22 @@ test({
   }
 });
 
+test({
+  name: 'multi line data',
+  async fn() {
+    const input = 'multi\nline\ndata';
+    await clipboard.writeText(input);
+    const output = await clipboard.readText();
+    assertEquals(output, input);
+  }
+});
+
+test({
+  name: 'multi line data dangling newlines',
+  async fn() {
+    const input = '\n\n\nmulti\n\n\n\n\n\nline\ndata\n\n\n\n\n';
+    await clipboard.writeText(input);
+    const output = await clipboard.readText();
+    assertEquals(output, input);
+  }
+});
