@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        os: ['ubuntu-16.04']
+        os: ['macOS-latest', 'windows-2019', 'ubuntu-18.04']
         kind: ['test']
     steps:
       - name: Configure git
@@ -21,20 +21,20 @@ jobs:
           fetch-depth: 1
           submodules: true
 
-      - name: Install Deno (linux)
+      - name: Install Deno (Linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get install -y xclip xsel xvfb --no-install-recommends
           curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
 
-      - name: Install Deno (mac)
+      - name: Install Deno (Mac)
         if: startsWith(matrix.os, 'macOS')
         run: |
           curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
   
-      - name: Install Deno (windows)
+      - name: Install Deno (Windows)
         if: startsWith(matrix.os, 'windows')
         run: |
           iwr https://deno.land/x/install/install.ps1 -useb | iex
@@ -44,8 +44,12 @@ jobs:
         run: |
           deno --version
 
-      - name: Test
-        if: matrix.kind == 'test'
+      - name: Test (Linux)
+        if: matrix.kind == 'test' && startsWith(matrix.os, 'ubuntu')
         run: |
           xvfb-run ./test.sh
-          # deno test --allow-run --allow-net test.ts
+
+      - name: Test (Mac and Windows)
+        if: matrix.kind == 'test' && !startsWith(matrix.os, 'ubuntu')
+        run: |
+          deno test --allow-run --allow-net test.ts
