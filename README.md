@@ -3,19 +3,21 @@ Deno clipboard library
 
 [![Build Status][actions-img]][actions-url] (CI tests on Linux, Mac, Windows)
 
-Experimental. Work in progress.
+Usage
+-
 
-On Linux it requires `xsel` to be installed (probably installed by default).
+```ts
+import { clipboard } from 'https://deno.land/x/clipboard/mod.ts';
 
-Note: The clipboard on Windows always adds a trailing newline if there was none
-which makes single line strings end with newline and this module removes the
-trailing newline on Windows, but it mens that if it was there originally it will still
-be removed - to preserve single-ine strings being single line, but maybe this is not the right
-way to do it. The other option would be to preserve the trailing newline but also to get one
-if it wasn't there. Currently I chose to remove it because newlines in the clipboard sometimes
-are problemating. TODO: think about it.
+await clipboard.writeText('some text');
 
-Goals:
+const text = await clipboard.readText();
+
+text === 'some text';
+```
+
+Goals
+-
 
 - use Web [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard)
 - use readText and writeText (no read and write, see the spec)
@@ -29,18 +31,18 @@ If Deno exposes a Clipboard API
 (with new permissions like `--allow-copy` and `--allow-paste`)
 then hopefully this will be obsolete.
 
-Usage
+Notes
 -
+On Linux it requires `xsel` to be installed (probably installed by default).
 
-```ts
-import { clipboard } from 'https://deno.land/x/clipboard/mod.ts';
-
-await clipboard.writeText('some text');
-
-const text = await clipboard.readText();
-
-text === 'some text';
-```
+The clipboard on Windows always adds a trailing newline if there was none
+which makes single line strings end with a newline and this module removes the
+trailing newline on Windows, but it means that if it was there originally then it will still
+be removed - to preserve single-line strings being single-line, but maybe this is not the right
+way to do it. The other option would be to preserve the trailing newline but also to get one
+if it wasn't there. Currently I chose to remove it because newlines in the clipboard sometimes
+are problemating (like automatically starting commands when pasten in the terminal).
+TODO: think about it.
 
 Issues
 -
