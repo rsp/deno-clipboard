@@ -1,7 +1,7 @@
 Deno clipboard library
 =
 
-[![Build Status][actions-img]][actions-url]
+[![Build Status][actions-img]][actions-url] (CI tests on Linux, Mac, Windows)
 
 Experimental. Work in progress.
 
