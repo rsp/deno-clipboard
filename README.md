@@ -5,6 +5,8 @@ Deno clipboard library
 
 Experimental. Work in progress.
 
+On Linux it requires `xsel` to be installed (probably installed by default).
+
 Note: The clipboard on Windows always adds a trailing newline if there was none
 which makes single line strings end with newline and this module removes the
 trailing newline on Windows, but it mens that if it was there originally it will still
