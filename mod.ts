@@ -53,7 +53,8 @@ const mac: Clipboard = {
 const win: Clipboard = {
   os: 'win',
   async readText() {
-    return read(['powershell', '-noprofile', '-command', 'Get-Clipboard']);
+    const data = await read(['powershell', '-noprofile', '-command', 'Get-Clipboard']);
+    return data.replace(/\r/g, '').replace(/\n$/, '');
   },
   async writeText(data) {
     return write(['powershell', '-noprofile', '-command', '$input|Set-Clipboard'], data);

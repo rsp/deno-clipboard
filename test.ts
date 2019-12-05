@@ -11,7 +11,7 @@ test({
   async fn() {
     const input = 'single line data';
     await clipboard.writeText(input);
-    const output = (await clipboard.readText()).replace(/\r/g, '');
+    const output = await clipboard.readText();
     assertEquals(output, input);
   }
 });
@@ -21,7 +21,7 @@ test({
   async fn() {
     const input = 'multi\nline\ndata';
     await clipboard.writeText(input);
-    const output = (await clipboard.readText()).replace(/\r/g, '');
+    const output = await clipboard.readText();
     assertEquals(output, input);
   }
 });
@@ -31,7 +31,7 @@ test({
   async fn() {
     const input = '\n\n\nmulti\n\n\n\n\n\nline\ndata\n\n\n\n\n';
     await clipboard.writeText(input);
-    const output = (await clipboard.readText()).replace(/\r/g, '');
+    const output = await clipboard.readText();
     assertEquals(output, input);
   }
 });
@@ -41,7 +41,7 @@ test({
   async fn() {
     const input = '`~!@#$%^&*()_+-=[]{};\':",./<>?\t\n';
     await clipboard.writeText(input);
-    const output = (await clipboard.readText()).replace(/\r/g, '');
+    const output = await clipboard.readText();
     assertEquals(output, input);
   }
 });
@@ -51,7 +51,7 @@ test({
   async fn() {
     const input = 'Rafał';
     await clipboard.writeText(input);
-    const output = (await clipboard.readText()).replace(/\r/g, '');
+    const output = await clipboard.readText();
     assertEquals(output, input);
   }
 });
