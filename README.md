@@ -1,5 +1,8 @@
 Deno clipboard library
 =
+
+[![Build Status](https://github.com/rsp/deno-clipboard/workflows/ci/badge.svg?branch=master&event=push)](https://github.com/rsp/deno-clipboard/actions)
+
 Experimental. Work in progress.
 
 Note: The clipboard on Windows always adds a trailing newline if there was none
