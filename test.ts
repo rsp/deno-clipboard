@@ -12,7 +12,7 @@ test({
     const input = 'single line data';
     await clipboard.writeText(input);
     const output = await clipboard.readText();
-    assertEquals(output, input);
+    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
   }
 });
 
@@ -22,7 +22,7 @@ test({
     const input = 'multi\nline\ndata';
     await clipboard.writeText(input);
     const output = await clipboard.readText();
-    assertEquals(output, input);
+    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
   }
 });
 
@@ -32,7 +32,7 @@ test({
     const input = '\n\n\nmulti\n\n\n\n\n\nline\ndata\n\n\n\n\n';
     await clipboard.writeText(input);
     const output = await clipboard.readText();
-    assertEquals(output, input);
+    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
   }
 });
 
@@ -42,7 +42,7 @@ test({
     const input = '`~!@#$%^&*()_+-=[]{};\':",./<>?\t\n';
     await clipboard.writeText(input);
     const output = await clipboard.readText();
-    assertEquals(output, input);
+    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
   }
 });
 
@@ -52,6 +52,6 @@ test({
     const input = 'Rafał';
     await clipboard.writeText(input);
     const output = await clipboard.readText();
-    assertEquals(output, input);
+    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
   }
 });
