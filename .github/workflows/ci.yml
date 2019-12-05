@@ -6,10 +6,10 @@ jobs:
   build:
     name: ${{ matrix.kind }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 2
+    timeout-minutes: 5
     strategy:
       matrix:
-        os: ['macOS-latest', 'windows-2019', 'ubuntu-16.04']
+        os: ['macOS-latest', 'windows-2019']
         kind: ['test']
     steps:
       - name: Configure git
