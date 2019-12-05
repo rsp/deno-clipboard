@@ -25,13 +25,13 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get install -y xsel
-          curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.23.0"
+          curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
 
       - name: Install Deno (mac)
         if: startsWith(matrix.os, 'macOS')
         run: |
-          curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.23.0"
+          curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
   
       - name: Install Deno (windows)
@@ -47,6 +47,4 @@ jobs:
       - name: Test
         if: matrix.kind == 'test'
         run: |
-          pwd
-          ls -alp
           deno test --allow-run --allow-net test.ts
