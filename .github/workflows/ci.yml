@@ -13,7 +13,7 @@ jobs:
         kind: ['test']
     steps:
       - name: Install Deno (linux)
-        if: startsWith(matrix.os, 'XXXubuntu')
+        if: startsWith(matrix.os, 'ubuntu')
         run: |
           curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.23.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
@@ -25,7 +25,7 @@ jobs:
           echo ::add-path::$HOME/.deno/bin:$PATH
   
       - name: Install Deno (windows)
-        if: startsWith(matrix.os, 'XXXwindows')
+        if: startsWith(matrix.os, 'windows')
         run: |
           iwr https://deno.land/x/install/install.ps1 -useb | iex
           echo ::add-path::$Home\\.deno\\bin
