@@ -32,7 +32,7 @@ jobs:
 
       - name: Log versions
         run: |
-          deno -v
+          deno --version
 
       - name: Test
         if: matrix.kind == 'test'
