@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        os: ['macOS-latest', 'windows-2019']
+        os: ['macOS-latest', 'windows-2019', 'ubuntu-16.04']
         kind: ['test']
     steps:
       - name: Configure git
@@ -24,7 +24,7 @@ jobs:
       - name: Install Deno (linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          sudo apt-get install -y xsel
+          sudo apt-get install -y xclip
           curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
 
