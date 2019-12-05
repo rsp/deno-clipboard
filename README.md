@@ -26,14 +26,14 @@ It will spawn external processes so unfortunately
 it will require the all-powerful `--allow-run` flag.
 
 If Deno exposes a Clipboard API
-(with new permissions like `--allow-copy` ale `--allow-paste`)
+(with new permissions like `--allow-copy` and `--allow-paste`)
 then hopefully this will be obsolete.
 
 Usage
 -
 
 ```ts
-import { clipboard } from './mod.ts';
+import { clipboard } from 'https://deno.land/x/clipboard/mod.ts';
 
 await clipboard.writeText('some text');
 
