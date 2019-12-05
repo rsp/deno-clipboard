@@ -1,7 +1,5 @@
-type OperatingSystem = Deno.OperatingSystem;
-
 type Dispatch = {
-  [key in OperatingSystem]: Clipboard;
+  [key in Deno.OperatingSystem]: Clipboard;
 };
 
 const encoder = new TextEncoder();
@@ -10,23 +8,20 @@ const decoder = new TextDecoder();
 export const encode = (x: string) => encoder.encode(x);
 export const decode = (x: Uint8Array) => decoder.decode(x);
 
+const opt: Deno.RunOptions = {
+  args: [],
+  stdin: 'piped',
+  stdout: 'piped',
+  stderr: 'piped',
+};
+
 async function read(args: string[]): Promise<string> {
-  const p = Deno.run({
-    args,
-    stdin: 'piped',
-    stdout: 'piped',
-    stderr: 'piped',
-  });
+  const p = Deno.run({ ...opt, args });
   return decode(await p.output());
 }
 
 async function write(args: string[], data: string): Promise<void> {
-  const p = Deno.run({
-    args,
-    stdin: 'piped',
-    stdout: 'piped',
-    stderr: 'piped',
-  });
+  const p = Deno.run({ ...opt, args });
   await p.stdin.write(encode(data));
   p.stdin.close();
   await p.status();
@@ -69,8 +64,8 @@ const dispatch: Dispatch = {
 };
 
 class Clipboard {
-  os: OperatingSystem;
-  constructor(os: OperatingSystem) {
+  os: Deno.OperatingSystem;
+  constructor(os: Deno.OperatingSystem) {
     if (!dispatch[os]) {
       throw new Error(`Clipboard: unsupported OS: ${os}`);
     }
@@ -85,5 +80,3 @@ class Clipboard {
 }
 
 export const clipboard = new Clipboard(Deno.build.os);
-
-// console.log(clipboard.os);
