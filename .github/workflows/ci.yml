@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        os: ['macOS-latest', 'windows-2019', 'ubuntu-16.04']
+        os: ['ubuntu-16.04']
         kind: ['test']
     steps:
       - name: Configure git
@@ -24,25 +24,28 @@ jobs:
       - name: Install Deno (linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          sudo apt-get install -y xclip xsel xvfb --no-install-recommends
+          sudo apt-get install -y xclip xsel xvfp --no-install-recommends
           curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
-          xvfb-run ./test.sh
 
       - name: Install Deno (mac)
         if: startsWith(matrix.os, 'macOS')
         run: |
           curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
-          deno test --allow-run --allow-net test.ts
   
       - name: Install Deno (windows)
         if: startsWith(matrix.os, 'windows')
         run: |
           iwr https://deno.land/x/install/install.ps1 -useb | iex
           echo ::add-path::$Home\\.deno\\bin
-          deno test --allow-run --allow-net test.ts
 
       - name: Log versions
         run: |
           deno --version
+
+      - name: Test
+        if: matrix.kind == 'test'
+        run: |
+          xvfb-run ./test.sh
+          # deno test --allow-run --allow-net test.ts
