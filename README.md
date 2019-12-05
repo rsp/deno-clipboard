@@ -1,11 +1,32 @@
 Deno clipboard library
 =
-Work in progress.
+Experimental. Work in progress.
 
+Goals:
+
+- use Web [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard)
+- use readText and writeText (no read and write, see the spec)
+- work on Linux, macOS, Windows
+- don't bundle any binaries
+
+It will spawn external processes so unfortunately
+it will require the all-powerful `--allow-run` flag.
+
+If Deno exposes a Clipboard API
+(with new permissions like `--allow-copy` ale `--allow-paste`)
+then hopefully this will be obsolete.
 
 Usage
 -
 
+```ts
+import { clipboard } from './mod.ts';
+
+await clipboard.writeText('some text');
+
+const text = await clipboard.readText();
+
+text === 'some text';
 ...
 
 Issues
