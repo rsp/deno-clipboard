@@ -33,10 +33,10 @@ async function write(args: string[], data: string): Promise<void> {
 const linux: Clipboard = {
   os: 'linux',
   async readText() {
-    return read(['xclip', '-b', '-o']);
+    return read(['xclip', '-selection', 'clipboard', '-o']);
   },
   async writeText(data) {
-    return write(['xclip', '-b'], data);
+    return write(['xclip', '-selection', 'clipboard'], data);
   },
 };
 
