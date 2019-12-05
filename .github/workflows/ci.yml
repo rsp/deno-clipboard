@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        os: ['macOS-latest', 'windows-2019']
+        os: ['macOS-latest', 'windows-2019', 'ubuntu-16.04']
         kind: ['test']
     steps:
       - name: Configure git

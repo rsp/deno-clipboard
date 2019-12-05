@@ -2,6 +2,14 @@ Deno clipboard library
 =
 Experimental. Work in progress.
 
+Note: The clipboard on Windows always adds a trailing newline if there was none
+which makes single line strings end with newline and this module removes the
+trailing newline on Windows, but it mens that if it was there originally it will still
+be removed - to preserve single-ine strings being single line, but maybe this is not the right
+way to do it. The other option would be to preserve the trailing newline but also to get one
+if it wasn't there. Currently I chose to remove it because newlines in the clipboard sometimes
+are problemating. TODO: think about it.
+
 Goals:
 
 - use Web [Clipboard API](https://developer.mozilla.org/en-US/docs/Web/API/Clipboard)
