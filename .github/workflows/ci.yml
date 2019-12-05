@@ -24,6 +24,7 @@ jobs:
       - name: Install Deno (linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
+          sudo apt-get install -y xsel
           curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.23.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
 
