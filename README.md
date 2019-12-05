@@ -1,7 +1,7 @@
 Deno clipboard library
 =
 
-[![Build Status](https://github.com/rsp/deno-clipboard/workflows/ci/badge.svg?branch=master&event=push)](https://github.com/rsp/deno-clipboard/actions)
+[![Build Status][actions-img]][actions-url]
 
 Experimental. Work in progress.
 
@@ -62,6 +62,8 @@ MIT License (Expat). See [LICENSE.md](LICENSE.md) for details.
 [readme-url]: https://github.com/rsp/deno-clipboard#readme
 [issues-url]: https://github.com/rsp/deno-clipboard/issues
 [license-url]: https://github.com/rsp/deno-clipboard/blob/master/LICENSE.md
+[actions-url]: https://github.com/rsp/deno-clipboard/actions
+[actions-img]: https://github.com/rsp/deno-clipboard/workflows/ci/badge.svg?branch=master&event=push
 [travis-url]: https://travis-ci.org/rsp/deno-clipboard
 [travis-img]: https://travis-ci.org/rsp/deno-clipboard.svg?branch=master
 [snyk-url]: https://snyk.io/test/github/rsp/deno-clipboard
