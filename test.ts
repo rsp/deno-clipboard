@@ -6,6 +6,9 @@ import { assertEquals } from 'https://deno.land/std@v0.25.0/testing/asserts.ts';
 
 import { clipboard } from './mod.ts';
 
+// The tests currently ingnore trailing newlines
+// because of some issues on Windows, see Readme.
+
 test({
   name: 'single line data',
   async fn() {
