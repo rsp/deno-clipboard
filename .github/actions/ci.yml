@@ -1,0 +1,39 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${{ matrix.kind }} ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 2
+    strategy:
+      matrix:
+        os: ['macOS-latest', 'windows-2019', 'ubuntu-16.04']
+        kind: ['test']
+    steps:
+      - name: Install Deno (linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          curl -fsSL https://deno.land/x/install/install.sh | sh
+          echo ::add-path::$HOME/.deno/bin:$PATH
+
+      - name: Install Deno (mac)
+        if: startsWith(matrix.os, 'macOS')
+        run: |
+          curl -fsSL https://deno.land/x/install/install.sh | sh
+          echo ::add-path::$HOME/.deno/bin:$PATH
+  
+      - name: Install Deno (windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          iwr https://deno.land/x/install/install.ps1 -useb | iex
+          echo ::add-path::$Home\\.deno\\bin
+
+      - name: Log versions
+        run: |
+          deno -v
+
+      - name: Test
+        if: matrix.kind == 'test'
+        run: deno test --allow-run --allow-net test.ts
