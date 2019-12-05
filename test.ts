@@ -1,8 +1,8 @@
 // Copyright (c) 2019 Rafał Pocztarski. All rights reserved.
 // MIT License (Expat). See: https://github.com/rsp/deno-clipboard
 
-import { test } from 'https://deno.land/std@v0.25.0/testing/mod.ts';
-import { assertEquals } from 'https://deno.land/std@v0.25.0/testing/asserts.ts';
+import { test } from 'https://deno.land/std@v0.23.0/testing/mod.ts';
+import { assertEquals } from 'https://deno.land/std@v0.23.0/testing/asserts.ts';
 
 import { clipboard } from './mod.ts';
 

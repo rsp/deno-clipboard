@@ -15,13 +15,13 @@ jobs:
       - name: Install Deno (linux)
         if: startsWith(matrix.os, 'XXXubuntu')
         run: |
-          curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
+          curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.23.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
 
       - name: Install Deno (mac)
         if: startsWith(matrix.os, 'macOS')
         run: |
-          curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.25.0"
+          curl -fsSL https://deno.land/x/install/install.sh | sh -s "v0.23.0"
           echo ::add-path::$HOME/.deno/bin:$PATH
   
       - name: Install Deno (windows)
