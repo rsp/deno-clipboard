@@ -36,4 +36,7 @@ jobs:
 
       - name: Test
         if: matrix.kind == 'test'
-        run: deno test --allow-run --allow-net test.ts
+        run: |
+          pwd
+          ls -alp
+          deno test --allow-run --allow-net test.ts
