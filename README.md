@@ -7,7 +7,7 @@ Usage
 -
 
 ```ts
-import { clipboard } from 'https://raw.githubusercontent.com/rsp/deno-clipboard/master/mod.ts';
+import { clipboard } from 'https://deno.land/x/clipboard/mod.ts';
 
 await clipboard.writeText('some text');
 
