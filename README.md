@@ -1,7 +1,7 @@
 Deno clipboard library
 =
 
-[![Build Status][actions-img]][actions-url] (CI tests on Linux, Mac, Windows)
+[![Build Status][actions-img]][actions-url]<br>(CI tests on Linux, Mac, Windows)
 
 Usage
 -
@@ -29,7 +29,9 @@ it will require the all-powerful `--allow-run` flag.
 
 If Deno exposes a Clipboard API
 (with new permissions like `--allow-copy` and `--allow-paste`)
-then hopefully this will be obsolete.
+then hopefully this will be obsolete. See the relevant issue:
+
+- [denoland/deno#3450 Support of Clipboard API without `--deno-run`](https://github.com/denoland/deno/issues/3450)
 
 Notes
 -
