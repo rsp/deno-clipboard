@@ -43,7 +43,7 @@ trailing newline on Windows, but it means that if it was there originally then i
 be removed - to preserve single-line strings being single-line, but maybe this is not the right
 way to do it. The other option would be to preserve the trailing newline but also to get one
 if it wasn't there. Currently I chose to remove it because newlines in the clipboard sometimes
-are problemating (like automatically starting commands when pasten in the terminal).
+are problematic (like automatically starting commands when pasted into the terminal).
 TODO: think about it.
 
 Issues
