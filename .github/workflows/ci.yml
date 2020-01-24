@@ -50,4 +50,4 @@ jobs:
       - name: Test (Mac and Windows)
         if: matrix.kind == 'test' && !startsWith(matrix.os, 'ubuntu')
         run: |
-          deno test --allow-run --allow-net test.ts
+          deno test --allow-run --allow-net --allow-env --allow-write test.ts
