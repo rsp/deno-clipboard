@@ -167,7 +167,9 @@ const resolveLinuxBinary = async (): Promise<LinuxBinary> => {
   throw new Error(errMsg.noClipboardUtility);
 };
 
-const clipboards = {
+type Clipboards = {[key in typeof Deno.build.os]: TextClipboard};
+
+const clipboards: Clipboards = {
   darwin,
   linux,
   windows,
