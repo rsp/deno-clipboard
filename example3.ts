@@ -1,4 +1,4 @@
-import { clipboard } from './mod.ts';
+import * as clipboard from './mod.ts';
 
 await clipboard.writeText('some text');
 
