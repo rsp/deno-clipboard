@@ -25,12 +25,12 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo apt-get install -y xclip xsel xvfb --no-install-recommends
-          curl -fsSL https://deno.land/x/install/install.sh | sudo DENO_INSTALL=/usr/local sh -s v0.25.0
+          curl -fsSL https://deno.land/x/install/install.sh | sudo DENO_INSTALL=/usr/local sh -s v1.0.5
 
       - name: Install Deno (Mac)
         if: startsWith(matrix.os, 'macOS')
         run: |
-          curl -fsSL https://deno.land/x/install/install.sh | sudo DENO_INSTALL=/usr/local sh -s v0.25.0
+          curl -fsSL https://deno.land/x/install/install.sh | sudo DENO_INSTALL=/usr/local sh -s v1.0.5
   
       - name: Install Deno (Windows)
         if: startsWith(matrix.os, 'windows')
@@ -50,4 +50,4 @@ jobs:
       - name: Test (Mac and Windows)
         if: matrix.kind == 'test' && !startsWith(matrix.os, 'ubuntu')
         run: |
-          deno test --allow-run --allow-net test.ts
+          deno test --allow-run test.ts
