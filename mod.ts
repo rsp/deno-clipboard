@@ -1,88 +1,182 @@
-// Copyright (c) 2019 Rafał Pocztarski. All rights reserved.
+// Copyright (c) 2019 Rafał Pocztarski, Jesse Jackson. All rights reserved.
 // MIT License (Expat). See: https://github.com/rsp/deno-clipboard
 
-type Dispatch = {
-  [key in Deno.OperatingSystem]: Clipboard;
-};
-
-const encoder = new TextEncoder();
 const decoder = new TextDecoder();
+const encoder = new TextEncoder();
 
-export const encode = (x: string) => encoder.encode(x);
-export const decode = (x: Uint8Array) => decoder.decode(x);
+type LinuxBinary = 'wsl' | 'xclip' | 'xsel';
 
-const opt: Deno.RunOptions = {
-  args: [],
-  stdin: 'piped',
-  stdout: 'piped',
-  stderr: 'piped',
+type Config = {
+  linuxBinary: LinuxBinary;
 };
 
-async function read(args: string[]): Promise<string> {
-  const p = Deno.run({ ...opt, args });
-  return decode(await p.output());
-}
-
-async function write(args: string[], data: string): Promise<void> {
-  const p = Deno.run({ ...opt, args });
-  await p.stdin.write(encode(data));
-  p.stdin.close();
-  await p.status();
-}
-
-const linux: Clipboard = {
-  os: 'linux',
-  async readText() {
-    // return read(['xclip', '-selection', 'clipboard', '-o']);
-    return read(['xsel', '-b', '-o']);
-  },
-  async writeText(data) {
-    // return write(['xclip', '-selection', 'clipboard'], data);
-    return write(['xsel', '-b', '-i'], data);
-  },
+const config: Config = {
+  linuxBinary: 'xsel',
 };
 
-const mac: Clipboard = {
-  os: 'mac',
-  async readText() {
-    return read(['pbpaste']);
-  },
-  async writeText(data) {
-    return write(['pbcopy'], data);
-  },
+const errMsg = {
+  genericRead: 'There was a problem reading from the clipboard',
+  genericWrite: 'There was a problem writing to the clipboard',
+  noClipboardUtility: 'No supported clipboard utility. "xsel" or "xclip" must be installed.',
+  osUnsupported: 'Unsupported operating system',
 };
 
-const win: Clipboard = {
-  os: 'win',
-  async readText() {
-    const data = await read(['powershell', '-noprofile', '-command', 'Get-Clipboard']);
-    return data.replace(/\r/g, '').replace(/\n$/, '');
-  },
-  async writeText(data) {
-    return write(['powershell', '-noprofile', '-command', '$input|Set-Clipboard'], data);
-  },
+export type ReadTextOptions = {
+  trim?: boolean;
+  unixNewlines?: boolean;
 };
 
-const dispatch: Dispatch = {
+type TextClipboard = {
+  readText: (readTextOptions?: ReadTextOptions) => Promise<string>;
+  writeText: (data: string) => Promise<void>;
+};
+
+const shared = {
+  async readText (
+    cmd: string[],
+    {trim = true, unixNewlines = true}: ReadTextOptions = {},
+  ): Promise<string> {
+    const runOpts: Deno.RunOptions = {
+      cmd,
+      stdout: 'piped',
+    };
+
+    const p = Deno.run(runOpts);
+
+    const {success} = await p.status();
+    if (!success) throw new Error(errMsg.genericRead);
+
+    const output = decoder.decode(await p.output());
+    p.close();
+
+    let result = output;
+
+    if (unixNewlines) result = result.replace(/\r\n/gu, '\n');
+    if (trim) return result.trim();
+    else return result;
+  },
+
+  async writeText (cmd: string[], data: string): Promise<void> {
+    const runOpts: Deno.RunOptions = {
+      cmd,
+      stdin: 'piped',
+    };
+
+    const p = Deno.run(runOpts);
+
+    if (!p.stdin) throw new Error(errMsg.genericWrite);
+    await p.stdin.write(encoder.encode(data));
+    p.stdin.close();
+
+    const {success} = await p.status();
+    if (!success) throw new Error(errMsg.genericWrite);
+
+    p.close();
+  }
+};
+
+const darwin: TextClipboard = {
+  async readText (readTextOptions?: ReadTextOptions): Promise<string> {
+    const cmd: string[] = ['pbpaste'];
+    return shared.readText(cmd, readTextOptions);
+  },
+
+  async writeText (data: string): Promise<void> {
+    const cmd: string[] = ['pbcopy'];
+    return shared.writeText(cmd, data);
+  }
+};
+
+const linux: TextClipboard = {
+  async readText (readTextOptions?: ReadTextOptions): Promise<string> {
+    const cmds: {[key in LinuxBinary]: string[]} = {
+      wsl: ['powershell.exe', '-NoProfile', '-Command', 'Get-Clipboard'],
+      xclip: ['xclip', '-selection', 'clipboard', '-o'],
+      xsel: ['xsel', '-b', '-o'],
+    };
+
+    const cmd = cmds[config.linuxBinary];
+    return shared.readText(cmd, readTextOptions);
+  },
+
+  async writeText (data: string): Promise<void> {
+    const cmds: {[key in LinuxBinary]: string[]} = {
+      wsl: ['clip.exe'],
+      xclip: ['xclip', '-selection', 'clipboard'],
+      xsel: ['xsel', '-b', '-i'],
+    };
+
+    const cmd = cmds[config.linuxBinary];
+    return shared.writeText(cmd, data);
+  }
+};
+
+const windows: TextClipboard = {
+  async readText (readTextOptions?: ReadTextOptions): Promise<string> {
+    const cmd: string[] = ['powershell', '-NoProfile', '-Command', 'Get-Clipboard'];
+    return shared.readText(cmd, readTextOptions);
+  },
+
+  async writeText (data: string): Promise<void> {
+    const cmd: string[] = ['powershell', '-NoProfile', '-Command', 'Set-Clipboard -Value "$env:DENO_CLIPBOARD_TEXT"'];
+
+    const runOpts: Deno.RunOptions = {
+      cmd,
+      env: {DENO_CLIPBOARD_TEXT: data},
+    };
+
+    const p = Deno.run(runOpts);
+
+    const {success} = await p.status();
+    if (!success) throw new Error(errMsg.genericWrite);
+
+    p.close();
+  }
+};
+
+const getProcessOutput = async (cmd: string[]): Promise<string> => {
+  const runOpts: Deno.RunOptions = {
+    cmd,
+    stdout: 'piped',
+  };
+
+  const p = Deno.run(runOpts);
+  const output = decoder.decode(await p.output());
+  p.close();
+  return output.trim();
+};
+
+const resolveLinuxBinary = async (): Promise<LinuxBinary> => {
+  type BinaryEntry = [LinuxBinary, () => boolean | Promise<boolean>];
+
+  const binaryEntries: BinaryEntry[] = [
+    ['wsl', async () => (
+      (await getProcessOutput(['uname', '-r', '-v'])).toLowerCase().includes('microsoft')
+      && Boolean(await getProcessOutput(['which', 'clip.exe']))
+      && Boolean(await getProcessOutput(['which', 'powershell.exe']))
+    )],
+    ['xsel', async () => Boolean(await getProcessOutput(['which', 'xsel']))],
+    ['xclip', async () => Boolean(await getProcessOutput(['which', 'xclip']))],
+  ];
+
+  for (const [binary, matchFn] of binaryEntries) {
+    const binaryMatches = await matchFn();
+    if (binaryMatches) return binary;
+  }
+
+  throw new Error(errMsg.noClipboardUtility);
+};
+
+const clipboards = {
+  darwin,
   linux,
-  mac,
-  win,
+  windows,
 };
 
-class Clipboard {
-  os: Deno.OperatingSystem;
-  constructor(os: Deno.OperatingSystem) {
-    if (!dispatch[os]) {
-      throw new Error(`Clipboard: unsupported OS: ${os}`);
-    }
-    this.os = os;
-  }
-  async readText(): Promise<string> {
-    return dispatch[this.os].readText();
-  }
-  async writeText(data: string): Promise<void> {
-    return dispatch[this.os].writeText(data);
-  }
-}
+const {build: {os}} = Deno;
 
-export const clipboard = new Clipboard(Deno.build.os);
+if (os === 'linux') config.linuxBinary = await resolveLinuxBinary();
+else if (!clipboards[os]) throw new Error(errMsg.osUnsupported);
+
+export const readText = clipboards[os].readText;
+export const writeText = clipboards[os].writeText;
