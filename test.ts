@@ -1,60 +1,66 @@
-// Copyright (c) 2019 Rafał Pocztarski. All rights reserved.
-// MIT License (Expat). See: https://github.com/rsp/deno-clipboard
+import {assert, assertEquals} from 'https://deno.land/std@0.56.0/testing/asserts.ts';
+import {readText, writeText} from './mod.ts';
 
-import { test } from 'https://deno.land/std@v0.25.0/testing/mod.ts';
-import { assertEquals } from 'https://deno.land/std@v0.25.0/testing/asserts.ts';
+type Test = [string, () => void | Promise<void>];
 
-import { clipboard } from './mod.ts';
-
-// The tests currently ingnore trailing newlines
-// because of some issues on Windows, see Readme.
-
-test({
-  name: 'single line data',
-  async fn() {
+const tests: Test[] = [
+  ['reads/writes without throwing', async () => {
+    const input = 'hello world';
+    await writeText(input);
+    await readText();
+  }],
+  ['single line data', async () => {
     const input = 'single line data';
-    await clipboard.writeText(input);
-    const output = await clipboard.readText();
+    await writeText(input);
+    const output = await readText();
     assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
-  }
-});
-
-test({
-  name: 'multi line data',
-  async fn() {
+  }],
+  ['multi line data', async () => {
     const input = 'multi\nline\ndata';
-    await clipboard.writeText(input);
-    const output = await clipboard.readText();
+    await writeText(input);
+    const output = await readText();
     assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
-  }
-});
-
-test({
-  name: 'multi line data dangling newlines',
-  async fn() {
+  }],
+  ['multi line data dangling newlines', async () => {
     const input = '\n\n\nmulti\n\n\n\n\n\nline\ndata\n\n\n\n\n';
-    await clipboard.writeText(input);
-    const output = await clipboard.readText();
+    await writeText(input);
+    const output = await readText({trim: false});
     assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
-  }
-});
-
-test({
-  name: 'data with special characters',
-  async fn() {
+  }],
+  ['data with special characters', async () => {
     const input = '`~!@#$%^&*()_+-=[]{};\':",./<>?\t\n';
-    await clipboard.writeText(input);
-    const output = await clipboard.readText();
+    await writeText(input);
+    const output = await readText({trim: false});
     assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
-  }
-});
-
-test({
-  name: 'data with unicode characters',
-  async fn() {
+  }],
+  ['data with unicode characters', async () => {
     const input = 'Rafał';
-    await clipboard.writeText(input);
-    const output = await clipboard.readText();
+    await writeText(input);
+    const output = await readText();
     assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
-  }
-});
+  }],
+  ['option: trim', async () => {
+    const input = 'hello world\n\n';
+    const inputTrimmed = 'hello world';
+    await writeText(input);
+    const output = await readText({trim: false});
+    const outputTrimmed = await readText({trim: true});
+    const outputDefault = await readText();
+    assert(output !== inputTrimmed && output.trim() === inputTrimmed);
+    assertEquals(inputTrimmed, outputTrimmed);
+    assertEquals(inputTrimmed, outputDefault);
+  }],
+  ['option: unixNewlines', async () => {
+    const inputCRLF = 'hello\r\nworld';
+    const inputLF = 'hello\nworld';
+    await writeText(inputCRLF);
+    const output = await readText({unixNewlines: false});
+    const outputUnix = await readText({unixNewlines: true});
+    const outputDefault = await readText();
+    assertEquals(inputCRLF, output);
+    assertEquals(inputLF, outputUnix);
+    assertEquals(inputLF, outputDefault);
+  }],
+];
+
+for (const [name, fn] of tests) Deno.test({name, fn});
