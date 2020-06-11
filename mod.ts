@@ -118,19 +118,8 @@ const windows: TextClipboard = {
   },
 
   async writeText (data: string): Promise<void> {
-    const cmd: string[] = ['powershell', '-NoProfile', '-Command', 'Set-Clipboard -Value "$env:DENO_CLIPBOARD_TEXT"'];
-
-    const runOpts: Deno.RunOptions = {
-      cmd,
-      env: {DENO_CLIPBOARD_TEXT: data},
-    };
-
-    const p = Deno.run(runOpts);
-
-    const {success} = await p.status();
-    if (!success) throw new Error(errMsg.genericWrite);
-
-    p.close();
+    const cmd: string[] = ['powershell', '-NoProfile', '-Command', '$input|Set-Clipboard'];
+    return shared.writeText(cmd, data);
   }
 };
 
