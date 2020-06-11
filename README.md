@@ -3,11 +3,13 @@ Deno clipboard library
 
 [![Build Status][actions-img]][actions-url]<br>(CI tests on Linux, Mac, Windows)
 
+> On Linux, `xsel` or `xclip` must be installed and in your `PATH`.
+
 Usage
 -
 
 ```ts
-import { clipboard } from 'https://deno.land/x/clipboard/mod.ts';
+import * as clipboard from 'https://deno.land/x/clipboard/mod.ts';
 
 await clipboard.writeText('some text');
 
@@ -33,18 +35,24 @@ then hopefully this will be obsolete. See the relevant issue:
 
 - [denoland/deno#3450 Support of Clipboard API without `--deno-run`](https://github.com/denoland/deno/issues/3450)
 
-Notes
+Options
 -
-On Linux it requires `xsel` to be installed (probably installed by default).
+The clipboard on Windows always adds a trailing newline if there was none,
+which makes single line strings end with a newline. Newlines in the clipboard are sometimes
+problematic (like automatically starting commands when pasted into the terminal), so this module trims leading and trailing whitespace by default. It also converts CRLF (Windows) newlines to LF (Unix) newlines by default when reading the clipboard.
 
-The clipboard on Windows always adds a trailing newline if there was none
-which makes single line strings end with a newline and this module removes the
-trailing newline on Windows, but it means that if it was there originally then it will still
-be removed - to preserve single-line strings being single-line, but maybe this is not the right
-way to do it. The other option would be to preserve the trailing newline but also to get one
-if it wasn't there. Currently I chose to remove it because newlines in the clipboard sometimes
-are problematic (like automatically starting commands when pasted into the terminal).
-TODO: think about it.
+Both of these options can be disabled independently:
+
+```ts
+import * as clipboard from 'https://deno.land/x/clipboard/mod.ts';
+
+const options: clipboard.ReadTextOptions = {
+  trim: false, // don't trim leading or trailing whitespace
+  unixNewlines: false, // don't convert CRLF to LF
+};
+
+const clipboardText = await clipboard.readText(options);
+```
 
 Issues
 -
@@ -59,6 +67,10 @@ Author
 [![Follow on Twitter][twitter-follow-img]][twitter-follow-url]
 <br/>
 [![Follow on Stack Exchange][stackexchange-img]][stackoverflow-url]
+
+Contributors
+-
+- [**Jesse Jackson**](https://github.com/jsejcksn)
 
 License
 -
