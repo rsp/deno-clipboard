@@ -1,3 +1,3 @@
 #!/bin/sh
 
-deno test --allow-run --allow-net test.ts
+deno test --allow-run test.ts
