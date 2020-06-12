@@ -21,6 +21,13 @@ const errMsg = {
   osUnsupported: 'Unsupported operating system',
 };
 
+/**
+ * Options to change the parsing behavior when reading the clipboard text
+ * 
+ * `trim` — (optional) Trim leading and trailing whitespace. Default is `true`.
+ * 
+ * `unixNewlines` — (optional) Convert all CRLF newlines to LF newlines. Default is `true`.
+ */
 export type ReadTextOptions = {
   trim?: boolean;
   unixNewlines?: boolean;
@@ -169,5 +176,12 @@ const {build: {os}} = Deno;
 if (os === 'linux') config.linuxBinary = await resolveLinuxBinary();
 else if (!clipboards[os]) throw new Error(errMsg.osUnsupported);
 
-export const readText = clipboards[os].readText;
-export const writeText = clipboards[os].writeText;
+/**
+ * Reads the clipboard and returns a string containing the text contents. Requires the `--allow-run` flag.
+ */
+export const readText: (readTextOptions?: ReadTextOptions) => Promise<string> = clipboards[os].readText;
+
+/**
+ * Writes a string to the clipboard. Requires the `--allow-run` flag.
+ */
+export const writeText: (data: string) => Promise<void> = clipboards[os].writeText;
