@@ -43,12 +43,7 @@ const shared = {
     cmd: string[],
     {trim = true, unixNewlines = true}: ReadTextOptions = {},
   ): Promise<string> {
-    const runOpts: Deno.RunOptions = {
-      cmd,
-      stdout: 'piped',
-    };
-
-    const p = Deno.run(runOpts);
+    const p = Deno.run({cmd, stdout: 'piped'});
 
     const {success} = await p.status();
     if (!success) throw new Error(errMsg.genericRead);
@@ -64,12 +59,7 @@ const shared = {
   },
 
   async writeText (cmd: string[], data: string): Promise<void> {
-    const runOpts: Deno.RunOptions = {
-      cmd,
-      stdin: 'piped',
-    };
-
-    const p = Deno.run(runOpts);
+    const p = Deno.run({cmd, stdin: 'piped'});
 
     if (!p.stdin) throw new Error(errMsg.genericWrite);
     await p.stdin.write(encoder.encode(data));
@@ -131,12 +121,7 @@ const windows: TextClipboard = {
 };
 
 const getProcessOutput = async (cmd: string[]): Promise<string> => {
-  const runOpts: Deno.RunOptions = {
-    cmd,
-    stdout: 'piped',
-  };
-
-  const p = Deno.run(runOpts);
+  const p = Deno.run({cmd, stdout: 'piped'});
   const output = decoder.decode(await p.output());
   p.close();
   return output.trim();
