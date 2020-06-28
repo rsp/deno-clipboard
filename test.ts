@@ -1,4 +1,4 @@
-import {assert, assertEquals} from 'https://deno.land/std@0.56.0/testing/asserts.ts';
+import {assert, assertEquals} from 'https://deno.land/std@0.59.0/testing/asserts.ts';
 import {readText, writeText} from './mod.ts';
 
 type Test = [string, () => void | Promise<void>];
@@ -13,38 +13,38 @@ const tests: Test[] = [
     const input = 'single line data';
     await writeText(input);
     const output = await readText();
-    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
+    assertEquals(output.replace(/\n+$/u, ''), input.replace(/\n+$/u, ''));
   }],
   ['multi line data', async () => {
     const input = 'multi\nline\ndata';
     await writeText(input);
     const output = await readText();
-    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
+    assertEquals(output.replace(/\n+$/u, ''), input.replace(/\n+$/u, ''));
   }],
   ['multi line data dangling newlines', async () => {
     const input = '\n\n\nmulti\n\n\n\n\n\nline\ndata\n\n\n\n\n';
     await writeText(input);
-    const output = await readText({trim: false});
-    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
+    const output = await readText({trimFinalNewlines: false});
+    assertEquals(output.replace(/\n+$/u, ''), input.replace(/\n+$/u, ''));
   }],
   ['data with special characters', async () => {
     const input = '`~!@#$%^&*()_+-=[]{};\':",./<>?\t\n';
     await writeText(input);
-    const output = await readText({trim: false});
-    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
+    const output = await readText({trimFinalNewlines: false});
+    assertEquals(output.replace(/\n+$/u, ''), input.replace(/\n+$/u, ''));
   }],
   ['data with unicode characters', async () => {
     const input = 'Rafał';
     await writeText(input);
     const output = await readText();
-    assertEquals(output.replace(/\n+$/, ''), input.replace(/\n+$/, ''));
+    assertEquals(output.replace(/\n+$/u, ''), input.replace(/\n+$/u, ''));
   }],
   ['option: trim', async () => {
     const input = 'hello world\n\n';
     const inputTrimmed = 'hello world';
     await writeText(input);
-    const output = await readText({trim: false});
-    const outputTrimmed = await readText({trim: true});
+    const output = await readText({trimFinalNewlines: false});
+    const outputTrimmed = await readText({trimFinalNewlines: true});
     const outputDefault = await readText();
     assert(output !== inputTrimmed && output.trim() === inputTrimmed);
     assertEquals(inputTrimmed, outputTrimmed);
@@ -63,4 +63,4 @@ const tests: Test[] = [
   }],
 ];
 
-for (const [name, fn] of tests) Deno.test({name, fn});
+for (const [name, fn] of tests) Deno.test({fn, name});
