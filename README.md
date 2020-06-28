@@ -39,7 +39,7 @@ Options
 -
 The clipboard on Windows always adds a trailing newline if there was none,
 which makes single line strings end with a newline. Newlines in the clipboard are sometimes
-problematic (like automatically starting commands when pasted into the terminal), so this module trims leading and trailing whitespace by default. It also converts CRLF (Windows) newlines to LF (Unix) newlines by default when reading the clipboard.
+problematic (like automatically starting commands when pasted into the terminal), so this module trims trailing newlines by default. It also converts CRLF (Windows) newlines to LF (Unix) newlines by default when reading the clipboard.
 
 Both of these options can be disabled independently:
 
@@ -47,7 +47,7 @@ Both of these options can be disabled independently:
 import * as clipboard from 'https://deno.land/x/clipboard/mod.ts';
 
 const options: clipboard.ReadTextOptions = {
-  trim: false, // don't trim leading or trailing whitespace
+  trimFinalNewlines: false, // don't trim trailing newlines
   unixNewlines: false, // don't convert CRLF to LF
 };
 
