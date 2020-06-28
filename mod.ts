@@ -10,9 +10,7 @@ type Config = {
   linuxBinary: LinuxBinary;
 };
 
-const config: Config = {
-  linuxBinary: 'xsel',
-};
+const config: Config = {linuxBinary: 'xsel'};
 
 const errMsg = {
   genericRead: 'There was a problem reading from the clipboard',
@@ -21,15 +19,18 @@ const errMsg = {
   osUnsupported: 'Unsupported operating system',
 };
 
+const normalizeNewlines = (str: string) => str.replace(/\r\n/gu, '\n');
+const trimNewlines = (str: string) => str.replace(/(?:\r\n|\n)+$/u, '');
+
 /**
  * Options to change the parsing behavior when reading the clipboard text
- * 
- * `trim` — (optional) Trim leading and trailing whitespace. Default is `true`.
- * 
- * `unixNewlines` — (optional) Convert all CRLF newlines to LF newlines. Default is `true`.
+ *
+ * `trimFinalNewlines?` — Trim trailing newlines. Default is `true`.
+ *
+ * `unixNewlines?` — Convert all CRLF newlines to LF newlines. Default is `true`.
  */
 export type ReadTextOptions = {
-  trim?: boolean;
+  trimFinalNewlines?: boolean;
   unixNewlines?: boolean;
 };
 
@@ -41,21 +42,20 @@ type TextClipboard = {
 const shared = {
   async readText (
     cmd: string[],
-    {trim = true, unixNewlines = true}: ReadTextOptions = {},
+    {trimFinalNewlines = true, unixNewlines = true}: ReadTextOptions = {},
   ): Promise<string> {
     const p = Deno.run({cmd, stdout: 'piped'});
 
     const {success} = await p.status();
-    if (!success) throw new Error(errMsg.genericRead);
-
-    const output = decoder.decode(await p.output());
+    const stdout = decoder.decode(await p.output());
     p.close();
 
-    let result = output;
+    if (!success) throw new Error(errMsg.genericRead);
 
-    if (unixNewlines) result = result.replace(/\r\n/gu, '\n');
-    if (trim) return result.trim();
-    else return result;
+    let result = stdout;
+    if (unixNewlines) result = normalizeNewlines(result);
+    if (trimFinalNewlines) return trimNewlines(result);
+    return result;
   },
 
   async writeText (cmd: string[], data: string): Promise<void> {
@@ -69,23 +69,23 @@ const shared = {
     if (!success) throw new Error(errMsg.genericWrite);
 
     p.close();
-  }
+  },
 };
 
 const darwin: TextClipboard = {
-  async readText (readTextOptions?: ReadTextOptions): Promise<string> {
+  readText (readTextOptions?: ReadTextOptions): Promise<string> {
     const cmd: string[] = ['pbpaste'];
     return shared.readText(cmd, readTextOptions);
   },
 
-  async writeText (data: string): Promise<void> {
+  writeText (data: string): Promise<void> {
     const cmd: string[] = ['pbcopy'];
     return shared.writeText(cmd, data);
-  }
+  },
 };
 
 const linux: TextClipboard = {
-  async readText (readTextOptions?: ReadTextOptions): Promise<string> {
+  readText (readTextOptions?: ReadTextOptions): Promise<string> {
     const cmds: {[key in LinuxBinary]: string[]} = {
       wsl: ['powershell.exe', '-NoProfile', '-Command', 'Get-Clipboard'],
       xclip: ['xclip', '-selection', 'clipboard', '-o'],
@@ -96,7 +96,7 @@ const linux: TextClipboard = {
     return shared.readText(cmd, readTextOptions);
   },
 
-  async writeText (data: string): Promise<void> {
+  writeText (data: string): Promise<void> {
     const cmds: {[key in LinuxBinary]: string[]} = {
       wsl: ['clip.exe'],
       xclip: ['xclip', '-selection', 'clipboard'],
@@ -105,37 +105,44 @@ const linux: TextClipboard = {
 
     const cmd = cmds[config.linuxBinary];
     return shared.writeText(cmd, data);
-  }
+  },
 };
 
 const windows: TextClipboard = {
-  async readText (readTextOptions?: ReadTextOptions): Promise<string> {
+  readText (readTextOptions?: ReadTextOptions): Promise<string> {
     const cmd: string[] = ['powershell', '-NoProfile', '-Command', 'Get-Clipboard'];
     return shared.readText(cmd, readTextOptions);
   },
 
-  async writeText (data: string): Promise<void> {
+  writeText (data: string): Promise<void> {
     const cmd: string[] = ['powershell', '-NoProfile', '-Command', '$input|Set-Clipboard'];
     return shared.writeText(cmd, data);
-  }
+  },
 };
 
 const getProcessOutput = async (cmd: string[]): Promise<string> => {
-  const p = Deno.run({cmd, stdout: 'piped'});
-  const output = decoder.decode(await p.output());
-  p.close();
-  return output.trim();
+  try {
+    const p = Deno.run({cmd, stdout: 'piped'});
+    const stdout = decoder.decode(await p.output());
+    p.close();
+    return stdout.trim();
+  }
+  catch (err) {
+    return '';
+  }
 };
 
 const resolveLinuxBinary = async (): Promise<LinuxBinary> => {
   type BinaryEntry = [LinuxBinary, () => boolean | Promise<boolean>];
 
   const binaryEntries: BinaryEntry[] = [
-    ['wsl', async () => (
-      (await getProcessOutput(['uname', '-r', '-v'])).toLowerCase().includes('microsoft')
+    [
+      'wsl', async () => (
+        (await getProcessOutput(['uname', '-r', '-v'])).toLowerCase().includes('microsoft')
       && Boolean(await getProcessOutput(['which', 'clip.exe']))
       && Boolean(await getProcessOutput(['which', 'powershell.exe']))
-    )],
+      ),
+    ],
     ['xsel', async () => Boolean(await getProcessOutput(['which', 'xsel']))],
     ['xclip', async () => Boolean(await getProcessOutput(['which', 'xclip']))],
   ];
