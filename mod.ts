@@ -15,7 +15,8 @@ const config: Config = {linuxBinary: 'xsel'};
 const errMsg = {
   genericRead: 'There was a problem reading from the clipboard',
   genericWrite: 'There was a problem writing to the clipboard',
-  noClipboardUtility: 'No supported clipboard utility. "xsel" or "xclip" must be installed.',
+  noClipboard: 'No supported clipboard utility. "xsel" or "xclip" must be installed.',
+  noClipboardWSL: 'Windows tools not found in $PATH. See https://docs.microsoft.com/en-us/windows/wsl/interop#run-windows-tools-from-linux',
   osUnsupported: 'Unsupported operating system',
 };
 
@@ -136,13 +137,16 @@ const resolveLinuxBinary = async (): Promise<LinuxBinary> => {
   type BinaryEntry = [LinuxBinary, () => boolean | Promise<boolean>];
 
   const binaryEntries: BinaryEntry[] = [
-    [
-      'wsl', async () => (
-        (await getProcessOutput(['uname', '-r', '-v'])).toLowerCase().includes('microsoft')
-      && Boolean(await getProcessOutput(['which', 'clip.exe']))
-      && Boolean(await getProcessOutput(['which', 'powershell.exe']))
-      ),
-    ],
+    ['wsl', async () => {
+      const isWSL = (await getProcessOutput(['uname', '-r', '-v'])).toLowerCase().includes('microsoft');
+      if (!isWSL) return false;
+      const hasWindowsUtils = (
+        Boolean(await getProcessOutput(['which', 'clip.exe']))
+        && Boolean(await getProcessOutput(['which', 'powershell.exe']))
+      );
+      if (hasWindowsUtils) return true;
+      throw new Error(errMsg.noClipboardWSL);
+    }],
     ['xsel', async () => Boolean(await getProcessOutput(['which', 'xsel']))],
     ['xclip', async () => Boolean(await getProcessOutput(['which', 'xclip']))],
   ];
@@ -152,7 +156,7 @@ const resolveLinuxBinary = async (): Promise<LinuxBinary> => {
     if (binaryMatches) return binary;
   }
 
-  throw new Error(errMsg.noClipboardUtility);
+  throw new Error(errMsg.noClipboard);
 };
 
 type Clipboards = {[key in typeof Deno.build.os]: TextClipboard};
