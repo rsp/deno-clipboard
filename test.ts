@@ -3,11 +3,11 @@ import {readText, writeText} from './mod.ts';
 
 type Test = [string, () => void | Promise<void>];
 
+let originalClipboard = '';
+
 const tests: Test[] = [
-  ['reads/writes without throwing', async () => {
-    const input = 'hello world';
-    await writeText(input);
-    await readText();
+  ['reads without throwing', async () => {
+    originalClipboard = await readText({unixNewlines: false});
   }],
   ['single line data', async () => {
     const input = 'single line data';
@@ -39,7 +39,7 @@ const tests: Test[] = [
     const output = await readText();
     assertEquals(output.replace(/\n+$/u, ''), input.replace(/\n+$/u, ''));
   }],
-  ['option: trim', async () => {
+  ['option: trimFinalNewlines', async () => {
     const input = 'hello world\n\n';
     const inputTrimmed = 'hello world';
     await writeText(input);
@@ -60,6 +60,9 @@ const tests: Test[] = [
     assertEquals(inputCRLF, output);
     assertEquals(inputLF, outputUnix);
     assertEquals(inputLF, outputDefault);
+  }],
+  ['writes without throwing', async () => {
+    await writeText(originalClipboard);
   }],
 ];
 
