@@ -1,7 +1,7 @@
-import { clipboard } from './mod.ts';
+import * as clipboard from './mod.ts';
 
-const x = 'abcaaa';
+const text = 'abcaaa';
 
-await clipboard.writeText(x);
+await clipboard.writeText(text);
 
 console.log(await clipboard.readText());
